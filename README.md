@@ -142,8 +142,8 @@ SafeHer24-7/
 - India-region hosting (AWS `ap-south-1` / GCP `asia-south1`) for production latency
 
   ## Team Name- The Trio
-  # 1.Subrata Das
-  # 2.Nilanjan Nath
-  # 3.Anjan Hatai
+  ## 1.Subrata Das
+  ## 2.Nilanjan Nath
+  ## 3.Anjan Hatai
 
 
