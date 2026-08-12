@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SafeHer</title>
+<style>
+  :root{
+    --ink:#14130F;
+    --cream:#F3EEE1;
+    --red:#DD3A1E;
+    --blue:#1D3FD1;
+    --yellow:#F2B705;
+  }
+  *{box-sizing:border-box;}
+  html,body{max-width:100%;overflow-x:hidden;height:auto;}
+  body{
+    margin:0;
+    background:var(--cream);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    -webkit-overflow-scrolling:touch;
+  }
+  .wrap{max-width:1000px;margin:12px auto;padding:0 10px;width:100%;}
+  .frame{border:4px solid var(--ink);width:100%;}
+  .row{display:flex;flex-direction:column;}
+  @media(min-width:768px){.row{flex-direction:row;}}
+
+  /* sidebar */
+  .sidebar{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:14px 16px;border-bottom:4px solid var(--ink);
+  }
+  @media(min-width:768px){
+    .sidebar{flex-direction:column;width:84px;border-bottom:none;border-right:4px solid var(--ink);padding:20px 12px;}
+  }
+  .logo-dot{width:30px;height:30px;border-radius:50%;background:var(--red);}
+  .nav{display:flex;gap:14px;}
+  @media(min-width:768px){.nav{flex-direction:column;gap:20px;}}
+  .navbtn{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;padding:0;}
+  .navbtn .ic{
+    width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  }
+  .navbtn.active .ic{background:var(--ink);}
+  .navbtn .lbl{font-size:9px;font-weight:800;letter-spacing:.06em;opacity:.5;display:none;}
+  @media(min-width:768px){.navbtn .lbl{display:block;}}
+  .navbtn.active .lbl{opacity:1;}
+
+  /* main */
+  main{flex:1;padding:20px 16px;min-width:0;}
+  @media(min-width:768px){main{padding:40px;}}
+  .eyebrow{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+  .eyebrow .sq{width:10px;height:10px;flex-shrink:0;}
+  .eyebrow span{font-size:11px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;}
+  h1.title{font-weight:900;text-transform:uppercase;line-height:.9;letter-spacing:-0.02em;font-size:clamp(28px,9vw,56px);margin:0 0 14px;max-width:100%;overflow-wrap:break-word;}
+  h1.title span{display:block;}
+  .desc{font-size:13px;line-height:1.6;max-width:100%;margin-bottom:20px;}
+  @media(min-width:768px){.desc{font-size:14px;max-width:380px;}}
+  .grid2{display:grid;grid-template-columns:1fr;gap:22px;align-items:start;min-width:0;}
+  @media(min-width:768px){.grid2{grid-template-columns:1fr 1fr;gap:28px;}}
+  .grid2 > div{min-width:0;}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px;}
+  .chip{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;border:2px solid var(--ink);padding:4px 8px;background:transparent;cursor:default;}
+  .chip.btn{cursor:pointer;}
+  .chip.active{background:var(--ink);color:var(--cream);}
+
+  .btn{border:none;cursor:pointer;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.04em;padding:10px 16px;display:inline-flex;align-items:center;gap:8px;}
+  .btn-blue{background:var(--blue);color:var(--cream);}
+  .btn-ink{background:var(--ink);color:var(--cream);}
+  .btn-yellow{background:var(--yellow);color:var(--ink);}
+  .btn-red{background:var(--red);color:var(--cream);}
+  .btn-outline{background:transparent;color:var(--ink);border:2px solid var(--ink);}
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+
+  .panel{border:2px solid var(--ink);padding:16px;}
+  .log{border:2px solid var(--ink);background:#fff;padding:12px;height:150px;overflow-y:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;}
+  .log .empty{opacity:.5;}
+  .log .line{margin-bottom:4px;}
+
+  /* SOS circle */
+  .sos-stage{position:relative;height:min(380px,60vh);min-height:240px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--yellow);}
+  .sos-stage.active{background:var(--red);}
+  .corner-tri{position:absolute;top:0;left:0;width:72px;height:72px;background:var(--blue);clip-path:polygon(0 0,100% 0,0 100%);}
+  .sos-btn{
+    position:relative;width:min(220px,55vw);height:min(220px,55vw);max-width:220px;max-height:220px;border-radius:50%;border:4px solid var(--ink);
+    background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;
+    cursor:pointer;user-select:none;transition:transform .1s ease;
+  }
+  .sos-btn svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);}
+  .sos-btn .big{font-weight:900;font-size:clamp(20px,6vw,28px);color:var(--cream);letter-spacing:-0.02em;}
+  .sos-btn .small{font-size:10px;font-weight:800;letter-spacing:.2em;color:var(--cream);text-transform:uppercase;margin-top:4px;}
+  .cancel-float{position:absolute;bottom:16px;font-size:11px;font-weight:800;text-transform:uppercase;padding:6px 12px;border:2px solid var(--ink);background:var(--cream);cursor:pointer;}
+
+  /* routes */
+  .route-item{width:100%;text-align:left;border:2px solid var(--ink);padding:10px 12px;display:flex;align-items:center;justify-content:space-between;background:transparent;cursor:pointer;margin-bottom:10px;}
+  .route-item.selected{background:var(--ink);}
+  .route-item .name{font-size:13px;font-weight:800;text-transform:uppercase;}
+  .route-item .mins{font-size:11px;opacity:.7;}
+  .route-item.selected .name,.route-item.selected .mins{color:var(--cream);}
+  .riskbar{width:96px;height:8px;background:#fff;border:1px solid var(--ink);}
+  .riskbar-fill{height:100%;}
+  .map{position:relative;height:min(380px,55vh);min-height:220px;border:2px solid var(--ink);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M24 0H0V24' fill='none' stroke='%2314130F' stroke-opacity='0.12'/%3E%3C/svg%3E");}
+  .pin{position:absolute;width:12px;height:12px;border-radius:50%;border:2px solid var(--ink);transform:translate(-50%,-50%);}
+  .map-caption{position:absolute;bottom:10px;left:10px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;opacity:.5;}
+
+  /* detect */
+  .waveform{height:min(380px,55vh);min-height:220px;border:2px solid var(--ink);background:#fff;display:flex;align-items:flex-end;justify-content:center;gap:4px;padding:16px;overflow:hidden;}
+  .waveform.detected{background:var(--red);}
+  .bar{width:min(10px,4vw);background:var(--ink);transition:height .15s ease,background .15s ease;}
+  .notice{border:2px solid var(--ink);padding:10px 12px;margin-bottom:22px;font-size:12px;display:flex;gap:8px;align-items:flex-start;}
+
+  /* report */
+  textarea{width:100%;border:2px solid var(--ink);padding:8px;font-size:13px;font-family:inherit;resize:vertical;}
+  label.check{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;text-transform:uppercase;}
+  .token{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:800;font-size:18px;border:2px solid var(--ink);display:inline-block;padding:8px 12px;margin:12px 0;}
+
+  footer{border-top:4px solid var(--ink);background:var(--blue);padding:14px 22px;display:flex;flex-direction:column;gap:4px;color:var(--cream);}
+  @media(min-width:768px){footer{flex-direction:row;align-items:center;justify-content:space-between;}}
+  footer .brand{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;}
+  footer .quote{font-size:12px;font-style:italic;opacity:.85;}
+
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="frame">
+    <div class="row">
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="logo-dot"></div>
+        <nav class="nav" id="nav"></nav>
+        <div id="wifi-icon" title="connected">📶</div>
+      </aside>
+
+      <!-- Main -->
+      <main>
+
+        <!-- SOS TAB -->
+        <section id="tab-sos" class="grid2">
+          <div>
+            <div class="eyebrow"><span class="sq" style="background:var(--red)"></span><span style="color:var(--red)">Active · Zero Taps</span></div>
+            <h1 class="title">HIDDEN<span style="color:var(--red)">SOS</span></h1>
+            <p class="desc">Hold the mark for 1.5 seconds. A confirm window follows so a stray touch never sends an alert — but once it fires, WebSocket and SMS/voice go out together, never one alone.</p>
+            <div class="chips">
+              <span class="chip">Power ×5</span>
+              <span class="chip">Vol-down hold</span>
+              <span class="chip">Decoy calculator</span>
+              <span class="chip">Shake (demo)</span>
+            </div>
+
+            <div id="sos-active-panel" class="panel hidden" style="border-color:var(--red);margin-bottom:16px;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                <span style="color:var(--red);">➤</span>
+                <span style="font-weight:800;font-size:13px;text-transform:uppercase;color:var(--red);">Live — streaming location</span>
+              </div>
+              <p id="ping-count" style="font-size:12px;margin-bottom:12px;">0 location pings sent · every 1.8s (demo)</p>
+              <button class="btn btn-ink" id="resolve-btn">Mark resolved</button>
+            </div>
+
+            <div id="sos-resolved-panel" class="panel hidden" style="margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:13px;font-weight:700;">✔ Incident closed. Contacts notified you're safe.</span>
+              <button class="btn-outline btn" id="reset-btn" style="border:none;text-decoration:underline;color:var(--blue);">Reset demo</button>
+            </div>
+
+            <div class="log" id="sos-log"><div class="empty">Pipeline log will appear here…</div></div>
+          </div>
+
+          <div class="sos-stage" id="sos-stage">
+            <div class="corner-tri"></div>
+            <button class="sos-btn" id="sos-btn">
+              <svg viewBox="0 0 100 100" width="220" height="220">
+                <circle cx="50" cy="50" r="46" fill="none" stroke="#F3EEE1" stroke-width="3" stroke-linecap="round"
+                        stroke-dasharray="289" id="hold-ring" stroke-dashoffset="289"/>
+              </svg>
+              <span class="big" id="sos-btn-text">HOLD</span>
+              <span class="small" id="sos-btn-sub">SOS</span>
+            </button>
+            <button class="cancel-float hidden" id="cancel-confirm-btn">Cancel alert</button>
+          </div>
+        </section>
+
+        <!-- ROUTES TAB -->
+        <section id="tab-routes" class="grid2 hidden">
+          <div>
+            <div class="eyebrow"><span class="sq" style="background:var(--blue)"></span><span style="color:var(--blue)">Prevention · Before travel</span></div>
+            <h1 class="title">SAFE<span style="color:var(--blue)">ROUTE</span></h1>
+            <p class="desc">Candidate paths are scored by hazard density, severity, and time of day — not just distance. Night reports weigh heavier after dark.</p>
+            <div id="route-list"></div>
+            <div id="pick-cats" class="hidden">
+              <p style="font-size:11px;font-weight:800;text-transform:uppercase;margin-bottom:8px;">Tag this spot</p>
+              <div class="chips" id="pick-cats-chips"></div>
+            </div>
+            <button class="btn btn-blue" id="mark-spot-btn">+ Mark this spot</button>
+          </div>
+          <div class="map" id="map">
+            <span class="map-caption">hazard pins — demo city</span>
+          </div>
+        </section>
+
+        <!-- DETECT TAB -->
+        <section id="tab-detect" class="grid2 hidden">
+          <div>
+            <div class="eyebrow"><span class="sq" style="background:var(--ink)"></span><span>Detection · During travel</span></div>
+            <h1 class="title">ACOUSTIC<span style="color:var(--yellow)">WATCH</span></h1>
+            <p class="desc">Audio is classified on-device, in a rolling buffer. Nothing streams to a server unless a distress event fires — and then only a short clip, attached as evidence.</p>
+            <div class="notice">⚠️&nbsp;<span>Opt-in only. This demo plays a simulated waveform — no microphone is used.</span></div>
+            <button class="btn btn-yellow" id="listen-btn">🎙 Start listening (demo)</button>
+            <div id="detected-panel" class="panel hidden" style="border-color:var(--red);margin-top:16px;">
+              <p style="font-weight:800;font-size:13px;color:var(--red);margin:0 0 8px;">Scream detected — 92% confidence</p>
+              <p style="font-size:12px;margin:0 0 12px;">Debounced across 4 consecutive windows to rule out laughter/music.</p>
+              <div class="chips">
+                <button class="btn btn-red" id="route-to-sos-btn">Route to SOS pipeline</button>
+                <button class="btn btn-outline" id="dismiss-detect-btn">Dismiss</button>
+              </div>
+            </div>
+          </div>
+          <div class="waveform" id="waveform"></div>
+        </section>
+
+        <!-- REPORT TAB -->
+        <section id="tab-report" class="grid2 hidden">
+          <div>
+            <div class="eyebrow"><span class="sq" style="background:var(--ink)"></span><span>Systemic change · After the fact</span></div>
+            <h1 class="title">ANONYMOUS<span style="color:var(--blue)">REPORT</span></h1>
+            <p class="desc">No login required to submit. We never store an IP address or device fingerprint — the tracking token below is the only thing that links back to this report.</p>
+          </div>
+
+          <div>
+            <div class="panel" id="report-form">
+              <p style="font-size:11px;font-weight:800;text-transform:uppercase;margin-bottom:8px;">Category</p>
+              <div class="chips" id="report-cats"></div>
+              <label class="check" style="margin:14px 0;">
+                <input type="checkbox" id="approx-loc" /> Include approximate location
+              </label>
+              <p style="font-size:11px;font-weight:800;text-transform:uppercase;margin-bottom:8px;">What happened</p>
+              <textarea id="report-desc" rows="4" placeholder="Describe the incident…"></textarea>
+              <div style="margin-top:14px;">
+                <button class="btn btn-blue" id="submit-report-btn" disabled>Submit report</button>
+              </div>
+            </div>
+            <div class="panel hidden" id="report-confirm" style="border-color:var(--blue);">
+              <p style="font-weight:800;font-size:13px;color:var(--blue);margin:0 0 6px;">✔ Report filed</p>
+              <p style="font-size:12px;margin:0;">Save this token to check status later — it's not tied to any account.</p>
+              <div class="token" id="report-token"></div>
+              <div><button class="btn-outline" id="report-again-btn" style="border:none;text-decoration:underline;color:var(--blue);cursor:pointer;background:none;font-weight:800;font-size:12px;text-transform:uppercase;">File another report</button></div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <footer>
+      <span class="brand">SafeHer — one pipeline, four pillars</span>
+      <span class="quote">"Response speed under network stress is the whole product."</span>
+    </footer>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   BACKEND INTEGRATION POINTS (Python/FastAPI)
+   Replace the mock functions below with real calls, e.g.:
+     POST   /sos                     -> fires SMS/voice fallback
+     WS     /sos/ws/{incident_id}    -> live location + status stream
+     GET    /hazards/nearby          -> hazard pins for the map
+     POST   /hazards                 -> submit a new hazard pin
+     GET    /hazards/score-route     -> route risk scoring
+     POST   /reports                 -> anonymous report submission
+   Each section below is marked with // BACKEND: ...
+   ========================================================= */
+
+const CATS = ["Poor lighting", "Harassment", "Isolated area", "Other"];
+
+/* ---------- Tab navigation ---------- */
+const TABS = [
+  {id:"sos", label:"SOS", icon:"🆘"},
+  {id:"routes", label:"ROUTES", icon:"📍"},
+  {id:"detect", label:"DETECT", icon:"🎙"},
+  {id:"report", label:"REPORT", icon:"📝"},
+];
+const nav = document.getElementById("nav");
+TABS.forEach(t=>{
+  const btn = document.createElement("button");
+  btn.className = "navbtn" + (t.id==="sos" ? " active":"");
+  btn.dataset.tab = t.id;
+  btn.innerHTML = `<span class="ic">${t.icon}</span><span class="lbl">${t.label}</span>`;
+  btn.onclick = ()=> switchTab(t.id);
+  nav.appendChild(btn);
+});
+function switchTab(id){
+  document.querySelectorAll("main > section").forEach(s=>s.classList.add("hidden"));
+  document.getElementById("tab-"+id).classList.remove("hidden");
+  document.querySelectorAll(".navbtn").forEach(b=>b.classList.toggle("active", b.dataset.tab===id));
+}
+
+/* ---------- SOS logic ---------- */
+const sosBtn = document.getElementById("sos-btn");
+const holdRing = document.getElementById("hold-ring");
+const sosStage = document.getElementById("sos-stage");
+const sosBtnText = document.getElementById("sos-btn-text");
+const sosBtnSub = document.getElementById("sos-btn-sub");
+const cancelConfirmBtn = document.getElementById("cancel-confirm-btn");
+const sosActivePanel = document.getElementById("sos-active-panel");
+const sosResolvedPanel = document.getElementById("sos-resolved-panel");
+const pingCountEl = document.getElementById("ping-count");
+const logEl = document.getElementById("sos-log");
+
+let phase = "idle"; // idle, holding, confirming, active, resolved
+let holdPct = 0, holdTimer=null, confirmTimer=null, pingTimer=null, countdown=4, pings=0;
+
+function nowStr(){ return new Date().toLocaleTimeString("en-US",{hour12:false}); }
+function pushLog(line){
+  if(logEl.querySelector(".empty")) logEl.innerHTML = "";
+  const div = document.createElement("div");
+  div.className = "line";
+  div.textContent = line;
+  logEl.appendChild(div);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function startHold(){
+  if(phase!=="idle") return;
+  phase="holding"; holdPct=0;
+  holdTimer = setInterval(()=>{
+    holdPct += 100/15;
+    holdRing.setAttribute("stroke-dashoffset", 289 - (289*Math.min(holdPct,100)/100));
+    sosBtn.style.transform = `scale(${1+Math.min(holdPct,100)/400})`;
+    if(holdPct>=100){ clearInterval(holdTimer); beginConfirm(); }
+  },100);
+}
+function cancelHold(){
+  if(phase==="holding"){
+    clearInterval(holdTimer); holdPct=0;
+    holdRing.setAttribute("stroke-dashoffset",289);
+    sosBtn.style.transform="scale(1)";
+    phase="idle";
+  }
+}
+function beginConfirm(){
+  phase="confirming"; countdown=4;
+  sosBtnText.textContent = countdown;
+  sosBtnSub.textContent = "tap to cancel";
+  cancelConfirmBtn.classList.remove("hidden");
+  pushLog(`${nowStr()} — hold complete, confirm window open`);
+  confirmTimer = setInterval(()=>{
+    countdown--;
+    if(countdown<=0){ clearInterval(confirmTimer); activate(); return; }
+    sosBtnText.textContent = countdown;
+  },1000);
+}
+function cancelConfirm(){
+  clearInterval(confirmTimer);
+  phase="idle"; holdPct=0;
+  holdRing.setAttribute("stroke-dashoffset",289);
+  sosBtn.style.transform="scale(1)";
+  sosBtnText.textContent="HOLD"; sosBtnSub.textContent="SOS";
+  cancelConfirmBtn.classList.add("hidden");
+  pushLog(`${nowStr()} — cancelled during confirm window, nothing sent`);
+}
+function activate(fromDetect){
+  phase="active"; pings=0;
+  cancelConfirmBtn.classList.add("hidden");
+  sosStage.classList.add("active");
+  sosBtnText.textContent="LIVE"; sosBtnSub.textContent="SOS";
+  sosActivePanel.classList.remove("hidden");
+  sosResolvedPanel.classList.add("hidden");
+
+  if(fromDetect) pushLog(`${nowStr()} — triggered by acoustic detection (reused pipeline, not duplicated)`);
+  // BACKEND: POST /sos  { user_id, lat, lng, timestamp }  ->  fires WS broadcast + Twilio fallback
+  pushLog(`${nowStr()} — sos:triggered sent over WebSocket {lat, lng, ts}`);
+  pushLog(`${nowStr()} — Twilio fallback fired in parallel (SMS/voice)`);
+  pushLog(`${nowStr
